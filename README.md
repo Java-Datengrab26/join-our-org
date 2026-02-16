@@ -1,8 +1,9 @@
 # join-our-org
 
-# Willkommen!
-Möchtest du unserer Organisation beitreten? 
+# Willkommen bei Java-Datengrab26!
 
-[KLICKE HIER, UM EINE EINLADUNG ZU ERHALTEN](https://github.com/DEINE_ORGA/join-our-org/issues/new?title=invite+me)
+Möchtest du unserer Organisation beitreten? Klicke einfach auf den Button unten:
 
-Nachdem du auf "Submit new issue" geklickt hast, sendet dir unser Bot automatisch eine Einladung!
+[![Join Org](https://img.shields.io/badge/GitHub-Join%20Organization-brightgreen?style=for-the-badge&logo=github)](https://github.com/Java-Datengrab26/join-our-org/issues/new?title=invite+me)
+
+*Nachdem du auf "Submit new issue" geklickt hast, erhältst du innerhalb weniger Sekunden eine automatische Einladung.*
