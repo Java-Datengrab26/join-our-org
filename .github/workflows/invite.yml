@@ -1,0 +1,24 @@
+name: Auto Invite Member
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  invite:
+    runs-on: ubuntu-latest
+    # Der Bot reagiert nur, wenn das Issue "invite" im Titel hat
+    if: contains(github.event.issue.title, 'invite')
+    steps:
+      - name: Send Organization Invitation
+        uses: sushichop/action-repository-membership@v1
+        with:
+          token: ${{ secrets.INVITER_TOKEN }}
+          organization: DEIN_ORGA_NAME  # <--- Hier den Namen deiner Orga eintragen!
+          username: ${{ github.event.issue.user.login }}
+          role: member
+
+      - name: Close Issue
+        uses: peter-evans/close-issue@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment: "Einladung wurde verschickt! Prüfe deine E-Mails oder deine GitHub-Benachrichtigungen."
