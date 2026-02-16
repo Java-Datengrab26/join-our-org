@@ -3,27 +3,57 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  issues: write
+  contents: read
+
 jobs:
   invite:
     runs-on: ubuntu-latest
-    # Reagiert nur, wenn "invite" im Titel steht
+    # Nur ausführen, wenn "invite" im Titel steht (Groß-/Kleinschreibung egal)
     if: contains(github.event.issue.title, 'invite')
     steps:
-      - name: Send Organization Invitation
-        env:
-          GH_TOKEN: ${{ secrets.INVITER_TOKEN }}
-        run: |
-          # Sendet die Einladung direkt über die GitHub API
-          gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /orgs/Java-Datengrab26/invitations \
-            -f "invitee_id=${{ github.event.issue.user.id }}" \
-            -f "role=direct_member"
+      - name: Invite User via JavaScript
+        uses: actions/github-script@v7
+        with:
+          # Hier dein spezielles Token nutzen!
+          github-token: ${{ secrets.INVITER_TOKEN }}
+          script: |
+            try {
+              // Wir holen die User-ID direkt aus dem Event (das ist sicher eine Zahl)
+              const userId = context.payload.issue.user.id;
+              
+              await github.rest.orgs.createInvitation({
+                org: 'Java-Datengrab26',
+                invitee_id: userId,
+                role: 'direct_member'
+              });
+              
+              console.log(`Einladung an User-ID ${userId} gesendet.`);
+              
+            } catch (error) {
+              console.log("Fehler beim Einladen: " + error.message);
+              // Wir lassen den Job nicht fehlschlagen, falls der User schon drin ist
+            }
 
-      - name: Close Issue
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh issue close ${{ github.event.issue.number }} --comment "Einladung wurde verschickt! Schau in dein Postfach oder unter https://github.com/orgs/Java-Datengrab26/invitations"
+      - name: Comment and Close Issue
+        uses: actions/github-script@v7
+        with:
+          # Hier reicht das Standard-Token für Kommentare
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Kommentar schreiben
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '✅ Einladung ist raus! Bitte prüfe deine E-Mails oder schau hier: https://github.com/orgs/Java-Datengrab26/invitations'
+            });
+
+            // 2. Issue schließen
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            });
